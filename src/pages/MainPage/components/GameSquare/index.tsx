@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, forwardRef, ReactNode } from "react";
+import { Component, forwardRef, MouseEventHandler, ReactNode, useState } from "react";
 import { GameSquareElement } from "./styles";
-import { Box, BoxProps } from "@mui/material";
+import { Box, BoxProps, Stack, Typography } from "@mui/material";
+
+import "./bombStyles.css"
 
 type GameSquareProps = {
     coordinates: {x: number, y: number}
@@ -10,16 +12,19 @@ type GameSquareProps = {
 }
 
 class IFieldData {
-    value: unknown;
+    value: string;
+    revealed: boolean = false;
+    reveal: (value: boolean) => void = () => {};
+    flagged: boolean = false;
 
-    constructor (value: unknown) {
+    constructor (value: string) {
         this.value = value;
     }
 }
 
 class FieldDataBomb extends IFieldData {
     constructor () {
-        super("X");
+        super("");
     }
 }
 
@@ -31,15 +36,59 @@ class FieldDataEmpty extends IFieldData {
 
 class FieldDataNumber extends IFieldData {
     constructor(value: number) {
-        super(value);
+        super(value.toString());
     }
 }
 
 const GameSquare = (props: GameSquareProps) => {
+    const [revealed, setRevealed] = useState(false);
+    const [flagged, setFlagged] = useState(false);
+
+    props.element.reveal = setRevealed;
+    props.element.flagged = flagged;
+    
+    const clickEvent = (event: any) => {
+        props.clickHandler(props.coordinates);
+    }
+
+    const rightClick = (event:React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.preventDefault();
+
+        if (props.element.revealed) return
+        
+        setFlagged(!flagged);
+    }
+
     return (
-        <GameSquareElement onClick={() => props.clickHandler(props.coordinates)}>
-            {String(props.element.value)}
-        </GameSquareElement>
+        <>
+            <GameSquareElement onClick={clickEvent} onContextMenu={rightClick} bgcolor={revealed ? "white" : "lightgray"}>
+                   { !props.element.flagged &&
+                    <>
+                    { (props.element instanceof FieldDataNumber && revealed) && 
+                        <Stack justifyContent="center" alignItems="center" height="100%">
+                            <Typography className={`num-${props.element.value}`} variant="h6">
+                                {props.element.value}
+                            </Typography>
+                        </Stack>
+                    }
+                    { (props.element instanceof FieldDataBomb && revealed) && 
+                        <Stack justifyContent="center" alignItems="center" height="100%">
+                            <Typography padding={0} margin={0} sx={{display: "flex", alignItems:"center"}}>
+                                <span  className="material-symbols-outlined" style={{padding: 0, margin: 0, fontSize: "25px"}}>explosion</span>
+                            </Typography>
+                        </Stack>
+                    }
+                    </>
+                   }
+                   { props.element.flagged &&
+                        <Stack justifyContent="center" alignItems="center" height="100%">
+                            <Typography padding={0} margin={0} sx={{display: "flex", alignItems:"center"}}>
+                                <span  className="material-symbols-outlined" style={{padding: 0, margin: 0, fontSize: "25px"}}>personal_places</span>
+                            </Typography>
+                        </Stack>
+                   }
+            </GameSquareElement>
+        </>
     )
 };
 
