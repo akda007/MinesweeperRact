@@ -1,9 +1,9 @@
 import { Container } from "@mui/material"
-import GameComponent from "./components/GameComponent"
+import GameComponent from "./components/game/GameComponent"
 
 export const MainPage = () => {
     return (
-        <Container>
+        <Container maxWidth="xl">
             <GameComponent></GameComponent>
         </Container>
     )
