@@ -7,14 +7,15 @@ type OptionsBarProps = {
     columns: number,
     setColumns: (value: number) => void,
     difficulty: Difficulty,
-    setDifficulty: (value: Difficulty) => void
+    setDifficulty: (value: Difficulty) => void,
+    startGame: () => void;
 }
 
 export const difficulties = ["Easy", "Medium", "Hard", "Expert"] as const;
 export type Difficulty = typeof difficulties[number];
 
 
-export default function OptionsBar({rows, setRows, columns, setColumns, difficulty, setDifficulty}: OptionsBarProps) {
+export default function OptionsBar({rows, setRows, columns, setColumns, difficulty, setDifficulty, startGame}: OptionsBarProps) {
 
     const [rowInput, setRowInput] = useState(String(rows))
     const [columnInput, setColumnInput] = useState(String(columns))
@@ -72,7 +73,7 @@ export default function OptionsBar({rows, setRows, columns, setColumns, difficul
                 </Select>
             </FormControl>
 
-            <Button variant="outlined"></Button>
+            <Button variant="outlined" onClick={() => startGame()}>Start</Button>
         </Stack>
     )
 

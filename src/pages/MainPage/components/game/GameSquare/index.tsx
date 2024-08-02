@@ -41,8 +41,8 @@ class FieldDataNumber extends IFieldData {
 }
 
 const GameSquare = (props: GameSquareProps) => {
-    const [revealed, setRevealed] = useState(false);
-    const [flagged, setFlagged] = useState(false);
+    const [revealed, setRevealed] = useState(props.element.revealed);
+    const [flagged, setFlagged] = useState(props.element.flagged);
 
     props.element.reveal = setRevealed;
     props.element.flagged = flagged;

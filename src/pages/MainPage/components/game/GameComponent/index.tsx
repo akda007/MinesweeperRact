@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Box, Stack } from "@mui/material";
+import { Box, Button, Modal, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FieldDataBomb, FieldDataEmpty, FieldDataNumber, GameSquare, IFieldData } from "../GameSquare";
 import OptionsBar, { difficulties, Difficulty } from "../../ui/OptionsBar";
@@ -56,12 +56,26 @@ const  calculateBombs = (array: IFieldData[][], position: {x: number, y: number}
     
 }
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
 
 export default function GameComponent() {
     const [columns, setColumns] = useState(12);
     const [rows, setRows] = useState(8);
     const [difficulty, setDifficulty] = useState("Medium");
     const [fieldMap, setFieldMap] = useState<IFieldData[][] | null>([])
+    const [running, setRunning] = useState(false);
+    const [exploded, setExploded] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const bombs = Math.ceil((columns * rows) * 0.05 * (difficulties.indexOf(difficulty as Difficulty) + 1));
 
@@ -88,8 +102,7 @@ export default function GameComponent() {
         })
 
         setFieldMap(tmpMap)
-    }, [rows, columns, difficulty, bombs])
-
+    }, [rows, columns, difficulty, bombs, running])
 
     const clearSpot = ({x, y}: {x: number, y: number}) => {
         if(!fieldMap) return 
@@ -154,16 +167,49 @@ export default function GameComponent() {
     }
     
     const clickHandler = ({ x, y }: {x:number, y:number}) => {
+        if (!fieldMap) {
+            return;
+        }
+        
         clearSpot({x, y});
+        
+        if (fieldMap[y][x] instanceof FieldDataBomb) {
+            setExploded(true);
+            setOpen(true);
+        }
     }
 
-    
+    const startGame = () => {
+        setRunning(true);
+    }
+
+
 
     return (
         <>
-            <OptionsBar rows={rows} columns={columns} setColumns={setColumns} setRows={setRows} difficulty={difficulty as Difficulty} setDifficulty={setDifficulty}/>
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+            >
+                <Box 
+                    sx={style}
+                >
+                    <Typography>You lost!</Typography>
+                    <Button variant="outlined" onClick={(e) => {setRunning(false); setOpen(false)}}>Ok</Button>
+                </Box>
+            </Modal>
+            <OptionsBar
+                rows={rows}
+                columns={columns}
+                setColumns={setColumns}
+                setRows={setRows}
+                difficulty={difficulty as Difficulty}
+                setDifficulty={setDifficulty}
+                startGame={startGame}
+                />
 
-            <Box marginTop={5}>
+            {running &&
+                <Box marginTop={5}>
                 {fieldMap && fieldMap.map((row, i) => 
                     <Stack
                         key={uuidv4()}
@@ -176,6 +222,7 @@ export default function GameComponent() {
                     </Stack>
                 )}
             </Box>
+            }
         </>
     )
 }
