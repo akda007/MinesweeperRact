@@ -47,7 +47,7 @@ const GameSquare = (props: GameSquareProps) => {
     props.element.reveal = setRevealed;
     props.element.flagged = flagged;
     
-    const clickEvent = (event: any) => {
+    const clickEvent = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         props.clickHandler(props.coordinates);
     }
 
